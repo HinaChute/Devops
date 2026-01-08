@@ -1,0 +1,46 @@
+name: Docker CI/CD to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout source
+      uses: actions/checkout@v4
+
+    - name: Deploy Docker container on EC2
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ec2-user
+        key: ${{ secrets.EC2_SSH_KEY }}
+        port: 22
+        script: |
+          echo "Connected to EC2"
+
+          cd /home/ec2-user
+
+          if [ ! -d html-cicd ]; then
+            git clone https://github.com/${{ github.repository }}.git html-cicd
+          fi
+
+          cd html-cicd
+          git pull origin main
+
+          docker stop html-app || true
+          docker rm html-app || true
+
+          docker build -t html-cicd:latest .
+
+          docker run -d \
+            --name html-app \
+            -p 80:80 \
+            html-cicd:latest
+
+          echo "Docker deployment completed"
+          
