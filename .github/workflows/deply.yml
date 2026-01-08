@@ -25,22 +25,22 @@ jobs:
 
           cd /home/ec2-user
 
-          if [ ! -d html-cicd ]; then
-            git clone https://github.com/${{ github.repository }}.git html-cicd
+          if [ ! -d Devops ]; then
+            git clone https://github.com/${{ github.repository }}.git Devops
           fi
 
-          cd html-cicd
+          cd Devops
           git pull origin main
 
-          docker stop html-app || true
-          docker rm html-app || true
+          docker stop newcontainer || true
+          docker rm newcontainer || true
 
-          docker build -t html-cicd:latest .
+          docker build -t newimg:latest .
 
           docker run -d \
-            --name html-app \
-            -p 80:80 \
-            html-cicd:latest
+          --name newcontainer \
+          -p 80:80 \
+          newimg
 
           echo "Docker deployment completed"
           
