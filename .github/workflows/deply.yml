@@ -34,7 +34,7 @@ jobs:
 
           docker stop newcontainer || true
           docker rm newcontainer || true
-          docker rmi newimg || true
+          
 
           docker build -t newimg:latest .
 
